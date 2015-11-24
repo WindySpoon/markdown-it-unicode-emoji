@@ -38,6 +38,33 @@ describe('markdown-it-emoji', function () {
   generate(path.join(__dirname, 'fixtures/whitelist.txt'), { header: true }, md);
 });
 
+describe('markdown-it-emoji-emoji-java', function () {
+  var md;
+
+
+  md = markdownit().use(emoji);
+  generate(path.join(__dirname, 'fixtures/default'), { header: true }, md);
+
+  generate(path.join(__dirname, 'fixtures/emoji-java.txt'), { header: true }, md);
+
+
+  md = markdownit().use(emoji, {
+    defs: {
+      one: '!!!one!!!',
+      fifty: '!!50!!'
+    },
+    shortcuts: {
+      fifty: [ ':50', '|50' ],
+      one: ':uno'
+    }
+  });
+  generate(path.join(__dirname, 'fixtures/options.txt'), { header: true }, md);
+
+
+  md = markdownit().use(emoji, { enabled: [ 'smile', 'grin' ] });
+  generate(path.join(__dirname, 'fixtures/whitelist.txt'), { header: true }, md);
+});
+
 
 describe('markdown-it-emoji-light', function () {
   var md;

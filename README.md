@@ -1,20 +1,30 @@
-# markdown-it-emoji
+# markdown-it-unicode-emoji
 
-[![Build Status](https://img.shields.io/travis/markdown-it/markdown-it-emoji/master.svg?style=flat)](https://travis-ci.org/markdown-it/markdown-it-emoji)
-[![NPM version](https://img.shields.io/npm/v/markdown-it-emoji.svg?style=flat)](https://www.npmjs.org/package/markdown-it-emoji)
-[![Coverage Status](https://coveralls.io/repos/markdown-it/markdown-it-emoji/badge.svg?branch=master&service=github)](https://coveralls.io/github/markdown-it/markdown-it-emoji?branch=master)
+[![Build Status](https://img.shields.io/travis/makepanic/markdown-it-unicode-emoji/master.svg?style=flat)](https://travis-ci.org/makepanic/markdown-it-unicode-emoji)
+[![NPM version](https://img.shields.io/npm/v/markdown-it-unicode-emoji.svg?style=flat)](https://www.npmjs.org/package/markdown-it-unicode-emoji)
+[![Coverage Status](https://coveralls.io/repos/makepanic/markdown-it-unicode-emoji/badge.svg?branch=master&service=github)](https://coveralls.io/github/makepanic/markdown-it-unicode-emoji?branch=master)
 
-> Plugin for [markdown-it](https://github.com/markdown-it/markdown-it) markdown parser, adding emoji & emoticon syntax support.
+> Plugin for [markdown-it](https://github.com/markdown-it/markdown-it) markdown parser, adding unicode emoji & emoticon syntax support.
 
-__v1.+ requires `markdown-it` v4.+, see changelog.__
+__Note:__ 
 
-Two versions:
+- this package is a fork of [markdown-it/markdown-it-emoji](https://github.com/markdown-it/markdown-it-emoji)
+- the `emoji` markdown-it token name which means it'll conflict with the [markdown-it/markdown-emoji](https://github.com/markdown-it/markdown-it) package. 
+(This shouldn't be a problem because the functionality of markdown-it is extended)
+
+Three versions:
 
 - __Full__ (default), with all github supported emojies.
-- [Light](https://github.com/markdown-it/markdown-it-emoji/blob/master/lib/data/light.json), with only well supported unicode emojies and reduced size.
+- [Light](https://github.com/makepanic/markdown-it-unicode-emoji/blob/master/lib/data/light.json), with only well supported unicode emojies and reduced size.
+- [emoji-java](https://github.com/makepanic/markdown-it-unicode-emoji/blob/master/lib/data/emoji-java.json) uses the same alias as [emoji-java](https://github.com/vdurmont/emoji-java/blob/master/src/main/resources/emojis.json)
 
-Also supports emoticons [shortcuts](https://github.com/markdown-it/markdown-it-emoji/blob/master/lib/data/shortcuts.js) like `:)`, `:-(`, and other. See full list an link above.
+Also supports emoticons [shortcuts](https://github.com/makepanic/markdown-it-unicode-emoji/blob/master/lib/data/shortcuts.js) like `:)`, `:-(`, and other. See full list an link above.
 
+## Differences to `markdown-it/markdown-it-emoji`
+
+- adds additional `data`: `emoji-java.json` based on the dataset from [emoji-java](https://github.com/vdurmont/emoji-java/blob/master/src/main/resources/emojis.json)
+- `emoji-java` version doesn't add any default shortcuts
+- creates tokens for unicode emojis
 
 ## Install
 
@@ -24,6 +34,8 @@ node.js, browser:
 npm install markdown-it-emoji --save
 bower install markdown-it-emoji --save
 ```
+
+In addition you need unicode emoji detection and parsing functions. If [twemoji](https://github.com/twitter/twemoji/) is provided, its functions are used by default.
 
 ## Use
 
@@ -40,11 +52,25 @@ md.use(emoji [, options]);
 
 Options are not mantatory:
 
-- __defs__ (Object) - rewrite available emojies definitions
+- __defs__ (`Object`) - rewrite available emojies definitions
   - example: `{ name1: char1, name2: char2, ... }`
-- __enabled__ (Array) - disable all emojies except whitelisted
-- __shortcuts__ (Object) - rewrite default shortcuts
+- __enabled__ (`Array`) - disable all emojies except whitelisted
+- __shortcuts__ (`Object`) - rewrite default shortcuts
   - example: `{ "smile": [ ":)", ":-)" ], "laughing": ":D" }`
+- __containsUnicodeEmoji__ (`Function(text)`) - function that returns true if a unicode emoji is found inside the text argument.
+- __replaceUnicodeEmojis__ (`Function(text, replacer)`) - function that follows the ES5 `String.prototype.replace(RegExp, replacer)` syntax.
+
+By default it tries to use [twemoji](https://github.com/twitter/twemoji/) to detect and parse unicode emojis, 
+but it's possible to roll your own implementation by setting these properties on the config object:
+
+```js
+containsUnicodeEmoji: function (text) {
+  return twemojiInstance.test(text);
+},
+replaceUnicodeEmojis: function (text, replacer) {
+  return twemojiInstance.replace(text, replacer);
+}
+```
 
 _Differences in browser._ If you load script directly into the page, without
 package system, module will add itself globally with name `markdownitEmoji`.
@@ -98,4 +124,4 @@ style:
 
 ## License
 
-[MIT](https://github.com/markdown-it/markdown-it-emoji/blob/master/LICENSE)
+[MIT](https://github.com/makepanic/markdown-it-unicode-emoji/blob/master/LICENSE)

@@ -1,8 +1,8 @@
 {
-  "name": "markdown-it-emoji",
-  "main": "dist/markdown-it-emoji.js",
-  "homepage": "https://github.com/markdown-it/markdown-it-emoji",
-  "description": "Emoji and emoticon plugin for markdown-it markdown parser.",
+  "name": "markdown-it-unicode-emoji",
+  "main": "dist/markdown-it-unicode-emoji.js",
+  "homepage": "https://github.com/makepanic/markdown-it-unicode-emoji",
+  "description": "Unicode emoji and emoticon plugin for markdown-it markdown parser.",
   "keywords": [
     "markdown-it-plugin",
     "markdown-it",
@@ -10,7 +10,8 @@
     "emoji",
     "emojies",
     "emoticon",
-    "emoticons"
+    "emoticons",
+    "unicode"
   ],
   "license": "MIT",
   "ignore": [

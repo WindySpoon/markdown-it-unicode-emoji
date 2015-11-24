@@ -1,4 +1,4 @@
-/*! markdown-it-emoji 1.1.0 https://github.com//markdown-it/markdown-it-emoji @license MIT */(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.markdownitEmoji = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/*! markdown-it-unicode-emoji 0.1.0 https://github.com//markdown-it/markdown-it-unicode-emoji @license MIT */(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.markdownitEmoji = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports={
   "smile": "😄",
   "smiley": "😃",
@@ -207,13 +207,15 @@ module.exports = function normalize_opts(options) {
                 .reverse()
                 .map(function (name) { return quoteRE(name); })
                 .join('|');
-  var scanRE = RegExp(names, 'g');
 
+  var scanRE = RegExp(names, 'g');
 
   return {
     defs: emojies,
     shortcuts: shortcuts,
-    scanRE: scanRE
+    scanRE: scanRE,
+    containsUnicodeEmoji: options.containsUnicodeEmoji,
+    replaceUnicodeEmojis: options.replaceUnicodeEmojis
   };
 };
 
@@ -233,60 +235,134 @@ module.exports = function emoji_html(tokens, idx /*, options, env */) {
 
 'use strict';
 
+function toCodePoint(unicodeSurrogates, sep) {
+  /* eslint no-bitwise: 0, yoda: 0 */
+  var
+    r = [],
+    c = 0,
+    p = 0,
+    i = 0;
+  while (i < unicodeSurrogates.length) {
+    c = unicodeSurrogates.charCodeAt(i++);
+    if (p) {
+      r.push((0x10000 + ((p - 0xD800) << 10) + (c - 0xDC00)).toString(16));
+      p = 0;
+    } else if (0xD800 <= c && c <= 0xDBFF) {
+      p = c;
+    } else {
+      r.push(c.toString(16));
+    }
+  }
+  return r.join(sep || '-');
+}
 
-module.exports = function create_rule(md, emojies, shortcuts, compiledRE) {
+function grabTheRightIcon(icon, variant) {
+  // if variant is present as \uFE0F
+  return toCodePoint(
+    variant === '\uFE0F' ?
+      // the icon should not contain it
+      icon.slice(0, -1) :
+      // fix non standard OSX behavior
+      (icon.length === 3 && icon.charAt(1) === '\uFE0F' ?
+      icon.charAt(0) + icon.charAt(2) : icon)
+  );
+}
+
+module.exports = function createRule(md, emojies, shortcuts, compiledRE, containsUnicodeEmoji, replaceUnicodeEmojis) {
   var arrayReplaceAt = md.utils.arrayReplaceAt,
-      ucm = md.utils.lib.ucmicro,
-      ZPCc = new RegExp([ ucm.Z.source, ucm.P.source, ucm.Cc.source ].join('|'));
+    ucm = md.utils.lib.ucmicro,
+    ZPCc = new RegExp([ ucm.Z.source, ucm.P.source, ucm.Cc.source ].join('|'));
 
   function splitTextToken(text, level, Token) {
-    var token, last_pos = 0, nodes = [];
+    var token,
+      lastAliasPos = 0,
+      nodes = [],
+      nestedNodes;
 
-    text.replace(compiledRE, function(match, offset, src) {
+    // tokenize colons and shortcuts
+    text.replace(compiledRE, function (match, offset, src) {
       // Don't allow letters before :/ shortcut.
       if (match === ':/' && offset > 0 && !ZPCc.test(src[offset - 1])) {
         return;
       }
 
-      var emoji_name;
+      var emojiName;
       // Validate emoji name
       if (shortcuts.hasOwnProperty(match)) {
         // replace shortcut with full name
-        emoji_name = shortcuts[match];
+        emojiName = shortcuts[match];
       } else {
-        emoji_name = match.slice(1, -1);
+        emojiName = match.slice(1, -1);
       }
 
       // Add new tokens to pending list
-      if (offset > last_pos) {
-        token         = new Token('text', '', 0);
-        token.content = text.slice(last_pos, offset);
+      if (offset > lastAliasPos) {
+        token = new Token('text', '', 0);
+        token.content = text.slice(lastAliasPos, offset);
         nodes.push(token);
       }
 
-      token         = new Token('emoji', '', 0);
-      token.markup  = emoji_name;
-      token.content = emojies[emoji_name];
+      token = new Token('emoji', '', 0);
+      token.markup = emojiName;
+      token.content = emojies[emojiName];
       nodes.push(token);
 
-      last_pos = offset + match.length;
+      lastAliasPos = offset + match.length;
     });
 
-    if (last_pos < text.length) {
-      token         = new Token('text', '', 0);
-      token.content = text.slice(last_pos);
+    if (lastAliasPos < text.length) {
+      token = new Token('text', '', 0);
+      token.content = text.slice(lastAliasPos);
       nodes.push(token);
     }
 
-    return nodes;
+    // tokenize unicode emojis
+    nestedNodes = nodes.map(function (node) {
+      if (node.type === 'text') {
+        var splitNodes = [],
+          lastEmojiPos = 0,
+          nodeText = node.content;
+
+        replaceUnicodeEmojis(node.content, function (match, icon, variant, offset/*, src */) {
+          var codePoint = grabTheRightIcon(icon, variant);
+
+          // Add new tokens to pending list
+          if (offset > lastEmojiPos) {
+            token = new Token('text', '', 0);
+            token.content = nodeText.slice(lastEmojiPos, offset);
+            splitNodes.push(token);
+          }
+
+          token = new Token('emoji', '', 0);
+          token.markup = codePoint;
+          token.content = icon;
+          splitNodes.push(token);
+
+          lastEmojiPos = offset + match.length;
+        });
+
+        if (lastEmojiPos < nodeText.length) {
+          token = new Token('text', '', 0);
+          token.content = nodeText.slice(lastEmojiPos);
+          splitNodes.push(token);
+        }
+
+        return splitNodes;
+      }
+      return node;
+    });
+
+    return [].concat.apply([], nestedNodes);
   }
 
-  return function emoji_replace(state) {
+  return function emojiReplace(state) {
     var i, j, l, tokens, token,
-        blockTokens = state.tokens;
+      blockTokens = state.tokens;
 
     for (j = 0, l = blockTokens.length; j < l; j++) {
-      if (blockTokens[j].type !== 'inline') { continue; }
+      if (blockTokens[j].type !== 'inline') {
+        continue;
+      }
       tokens = blockTokens[j].children;
 
       // We scan from the end, to keep position when new tags added.
@@ -294,11 +370,13 @@ module.exports = function create_rule(md, emojies, shortcuts, compiledRE) {
       for (i = tokens.length - 1; i >= 0; i--) {
         token = tokens[i];
 
-        if (token.type === 'text' && compiledRE.test(token.content)) {
-          // replace current node
-          blockTokens[j].children = tokens = arrayReplaceAt(
-            tokens, i, splitTextToken(token.content, token.level, state.Token)
-          );
+        if (token.type === 'text') {
+          if (compiledRE.test(token.content) || containsUnicodeEmoji(token.content)) {
+            // replace current node
+            blockTokens[j].children = tokens = arrayReplaceAt(
+              tokens, i, splitTextToken(token.content, token.level, state.Token)
+            );
+          }
         }
       }
     }
@@ -308,27 +386,44 @@ module.exports = function create_rule(md, emojies, shortcuts, compiledRE) {
 },{}],6:[function(require,module,exports){
 'use strict';
 
+var emojiesDefs = require('./lib/data/light.json'),
+  emojiesShortcuts = require('./lib/data/shortcuts'),
+  emojiHtml = require('./lib/render'),
+  emojiReplace = require('./lib/replace'),
+  normalizeOpts = require('./lib/normalize_opts');
 
-var emojies_defs      = require('./lib/data/light.json');
-var emojies_shortcuts = require('./lib/data/shortcuts');
-var emoji_html        = require('./lib/render');
-var emoji_replace     = require('./lib/replace');
-var normalize_opts    = require('./lib/normalize_opts');
+var twemojiInstance;
+// allow not to have twemoji installed
+try {
+  twemojiInstance = require('twemoji');
+} catch (e) {
+  /* eslint no-undef: 0, block-scoped-var: 0 */
+  if (twemoji) {
+    twemojiInstance = twemoji;
+  }
+}
 
-
-module.exports = function emoji_plugin(md, options) {
+module.exports = function emojiPlugin(md, options) {
+  options = options || {};
   var defaults = {
-    defs: emojies_defs,
-    shortcuts: emojies_shortcuts,
-    enabled: []
+    defs: emojiesDefs,
+    shortcuts: emojiesShortcuts,
+    enabled: [],
+    containsUnicodeEmoji: options.containsUnicodeEmoji ? options.containsUnicodeEmoji : function (str) {
+      return twemojiInstance.test(str);
+    },
+    replaceUnicodeEmojis: options.replaceUnicodeEmojis ? options.replaceUnicodeEmojis : function (text, replacer) {
+      return twemojiInstance.replace(text, replacer);
+    }
   };
 
-  var opts = normalize_opts(md.utils.assign({}, defaults, options || {}));
+  var opts = normalizeOpts(md.utils.assign({}, defaults, options || {}));
 
-  md.renderer.rules.emoji = emoji_html;
+  md.renderer.rules.emoji = emojiHtml;
 
-  md.core.ruler.push('emoji', emoji_replace(md, opts.defs, opts.shortcuts, opts.scanRE));
+  md.core.ruler.push('emoji', emojiReplace(md, opts.defs, opts.shortcuts, opts.scanRE,
+    opts.containsUnicodeEmoji, opts.replaceUnicodeEmojis));
 };
 
-},{"./lib/data/light.json":1,"./lib/data/shortcuts":2,"./lib/normalize_opts":3,"./lib/render":4,"./lib/replace":5}]},{},[6])(6)
+},{"./lib/data/light.json":1,"./lib/data/shortcuts":2,"./lib/normalize_opts":3,"./lib/render":4,"./lib/replace":5,"twemoji":undefined}]},{},[6])(6)
 });

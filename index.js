@@ -1,23 +1,40 @@
 'use strict';
 
+var emojiesDefs = require('./lib/data/full.json'),
+  emojiesShortcuts = require('./lib/data/shortcuts'),
+  emojiHtml = require('./lib/render'),
+  emojiReplace = require('./lib/replace'),
+  normalizeOpts = require('./lib/normalize_opts');
 
-var emojies_defs      = require('./lib/data/full.json');
-var emojies_shortcuts = require('./lib/data/shortcuts');
-var emoji_html        = require('./lib/render');
-var emoji_replace     = require('./lib/replace');
-var normalize_opts    = require('./lib/normalize_opts');
+var twemojiInstance;
+// allow not to have twemoji installed
+try {
+  twemojiInstance = require('twemoji');
+} catch (e) {
+  /* eslint no-undef: 0, block-scoped-var: 0 */
+  if (twemoji) {
+    twemojiInstance = twemoji;
+  }
+}
 
-
-module.exports = function emoji_plugin(md, options) {
+module.exports = function emojiPlugin(md, options) {
+  options = options || {};
   var defaults = {
-    defs: emojies_defs,
-    shortcuts: emojies_shortcuts,
-    enabled: []
+    defs: emojiesDefs,
+    shortcuts: emojiesShortcuts,
+    enabled: [],
+    containsUnicodeEmoji: options.containsUnicodeEmoji ? options.containsUnicodeEmoji : function (text) {
+      return twemojiInstance.test(text);
+    },
+    replaceUnicodeEmojis: options.replaceUnicodeEmojis ? options.replaceUnicodeEmojis : function (text, replacer) {
+      return twemojiInstance.replace(text, replacer);
+    }
   };
 
-  var opts = normalize_opts(md.utils.assign({}, defaults, options || {}));
+  var opts = normalizeOpts(md.utils.assign({}, defaults, options || {}));
 
-  md.renderer.rules.emoji = emoji_html;
+  md.renderer.rules.emoji = emojiHtml;
 
-  md.core.ruler.push('emoji', emoji_replace(md, opts.defs, opts.shortcuts, opts.scanRE));
+  md.core.ruler.push('emoji', emojiReplace(md, opts.defs, opts.shortcuts, opts.scanRE,
+    opts.containsUnicodeEmoji, opts.replaceUnicodeEmojis));
 };

@@ -1,0 +1,10 @@
+---
+desc: Emoji java version
+---
+
+should apply shortcut after data
+.
+foo :open_hands: bar
+.
+<p>foo 👐 bar</p>
+.
