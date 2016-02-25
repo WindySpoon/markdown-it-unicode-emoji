@@ -1,6 +1,6 @@
 {
   "name": "markdown-it-unicode-emoji",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Unicode emoji plugin for markdown-it markdown parser.",
   "keywords": [
     "markdown-it-plugin",
@@ -42,10 +42,9 @@
     "markdown-it-testgen": "~0.1.0",
     "mocha": "*",
     "request": "*",
-    "twemoji": "^1.4.1",
     "uglify-js": "*"
   },
   "optionalDependencies": {
-    "twemoji": "^1.4.1"
+    "emojione": "2.1.0"
   }
 }

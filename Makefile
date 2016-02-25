@@ -28,28 +28,28 @@ browserify:
 	mkdir dist
 	# Browserify
 	( printf "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" ; \
-		./node_modules/.bin/browserify ./ --exclude twemoji --ignore-missing -s markdownitEmoji \
+		./node_modules/.bin/browserify ./ --exclude emojione --ignore-missing -s markdownitEmoji \
 		) > dist/markdown-it-unicode-emoji.js
 	# Minify
-	./node_modules/.bin/uglifyjs dist/markdown-it-unicode-emoji.js --exclude twemoji --ignore-missing -b beautify=false,ascii-only=true -c -m \
+	./node_modules/.bin/uglifyjs dist/markdown-it-unicode-emoji.js --exclude emojione --ignore-missing -b beautify=false,ascii-only=true -c -m \
 		--preamble "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" \
 		> dist/markdown-it-unicode-emoji.min.js
 
 	# Browserify light version
 	( printf "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" ; \
-		./node_modules/.bin/browserify ./light.js --exclude twemoji --ignore-missing -s markdownitEmoji \
+		./node_modules/.bin/browserify ./light.js --exclude emojione --ignore-missing -s markdownitEmoji \
 		) > dist/markdown-it-unicode-emoji-light.js
 	# Minify light version
-	./node_modules/.bin/uglifyjs dist/markdown-it-unicode-emoji-light.js --exclude twemoji --ignore-missing -b beautify=false,ascii-only=true -c -m \
+	./node_modules/.bin/uglifyjs dist/markdown-it-unicode-emoji-light.js --exclude emojione --ignore-missing -b beautify=false,ascii-only=true -c -m \
 		--preamble "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" \
 		> dist/markdown-it-unicode-emoji-light.min.js
 
 	# Browserify emoji-java version
 	( printf "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" ; \
-		./node_modules/.bin/browserify ./emoji-java.js --exclude twemoji --ignore-missing -s markdownitEmoji \
+		./node_modules/.bin/browserify ./emoji-java.js --exclude emojione --ignore-missing -s markdownitEmoji \
 		) > dist/markdown-it-unicode-emoji-emoji-java.js
 	# Minify emoji-java version
-	./node_modules/.bin/uglifyjs dist/markdown-it-unicode-emoji-emoji-java.js --exclude twemoji --ignore-missing -b beautify=false,ascii-only=true -c -m \
+	./node_modules/.bin/uglifyjs dist/markdown-it-unicode-emoji-emoji-java.js --exclude emojione --ignore-missing -b beautify=false,ascii-only=true -c -m \
 		--preamble "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" \
 		> dist/markdown-it-unicode-emoji-emoji-java.min.js
 

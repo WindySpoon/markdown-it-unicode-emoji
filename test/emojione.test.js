@@ -5,16 +5,17 @@ var generate = require('markdown-it-testgen');
 var path = require('path');
 
 var emoji = require('..'),
-  twemoji = require('twemoji');
+  emojione = require('emojione');
 
 describe('replace', function () {
   var md = markdownit().use(emoji);
 
+  emojione.imageType = 'svg';
+  emojione.imagePathSVG = '/img/';
+
   md.renderer.rules.emoji = function (token, idx) {
-    return twemoji.parse(token[idx].content, function(icon, options/*, variant*/) {
-      return '/img/' + options.size + '/' + icon + '.png';
-    });
+    return emojione.unicodeToImage(token[idx].content);
   };
 
-  generate(path.join(__dirname, 'fixtures/with-twemoji'), { header: true }, md);
+  generate(path.join(__dirname, 'fixtures/with-emojione'), { header: true }, md);
 });

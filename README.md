@@ -35,7 +35,7 @@ npm install markdown-it-emoji --save
 bower install markdown-it-emoji --save
 ```
 
-In addition you need unicode emoji detection and parsing functions. If [twemoji](https://github.com/twitter/twemoji/) is provided, its functions are used by default.
+In addition you need unicode emoji detection and parsing functions. If [emojione](http://emojione.com/) is provided, its functions are used by default.
 
 ## Use
 
@@ -60,15 +60,15 @@ Options are not mantatory:
 - __containsUnicodeEmoji__ (`Function(text)`) - function that returns true if a unicode emoji is found inside the text argument.
 - __replaceUnicodeEmojis__ (`Function(text, replacer)`) - function that follows the ES5 `String.prototype.replace(RegExp, replacer)` syntax.
 
-By default it tries to use [twemoji](https://github.com/twitter/twemoji/) to detect and parse unicode emojis, 
+By default it tries to use [emojione](http://emojione.com/) to detect and parse unicode emojis, 
 but it's possible to roll your own implementation by setting these properties on the config object:
 
 ```js
 containsUnicodeEmoji: function (text) {
-  return twemojiInstance.test(text);
+  return emojiOneInstance.regUnicode.test(text);
 },
 replaceUnicodeEmojis: function (text, replacer) {
-  return twemojiInstance.replace(text, replacer);
+  return text.replace(emojiOneInstance.regUnicode, replacer);
 }
 ```
 
@@ -97,29 +97,15 @@ md.renderer.rules.emoji = function(token, idx) {
 };
 ```
 
-Or use [twemoji](https://github.com/twitter/twemoji):
+Or use [emojione](http://emojione.com/):
 
 ```js
 // ...
 // initialize
 
-var twemoji = require('twemoji')
-
 md.renderer.rules.emoji = function(token, idx) {
-  return twemoji.parse(token[idx].content);
+  return emojione.unicodeToImage(token[idx].content);
 };
-```
-
-__NB 1__. Read [twemoji docs](https://github.com/twitter/twemoji#string-parsing)!
-May be you need more options to change image size & type.
-
-__NB 2__. For twemoji you can like to fit image height to line height with this
-style:
-
-```css
-.emoji {
-  height: 1.2em;
-}
 ```
 
 ## License

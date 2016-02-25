@@ -1,4 +1,4 @@
-/*! markdown-it-unicode-emoji 0.1.0 https://github.com//markdown-it/markdown-it-unicode-emoji @license MIT */(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.markdownitEmoji = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/*! markdown-it-unicode-emoji 0.2.0 https://github.com//makepanic/markdown-it-unicode-emoji @license MIT */(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.markdownitEmoji = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports={
   "100": "💯",
   "1234": "🔢",
@@ -890,7 +890,7 @@ module.exports = {
   blush:            [ ':")', ':-")' ],
   broken_heart:     [ '</3', '<\\3' ],
   // :\ and :-\ not used because of conflict with markdown escaping
-  confused:         [ ':/', ':-/' ], // twemoji shows question
+  confused:         [ ':/', ':-/' ], // emojione shows question
   cry:              [ ":'(", ":'-(", ':,(', ':,-(' ],
   frowning:         [ ':(', ':-(' ],
   heart:            [ '<3' ],
@@ -1149,14 +1149,14 @@ var emojiesDefs = require('./lib/data/full.json'),
   emojiReplace = require('./lib/replace'),
   normalizeOpts = require('./lib/normalize_opts');
 
-var twemojiInstance;
-// allow not to have twemoji installed
+var emojiOneInstance;
+// allow not to have emojione installed
 try {
-  twemojiInstance = require('twemoji');
+  emojiOneInstance = require('emojione');
 } catch (e) {
   /* eslint no-undef: 0, block-scoped-var: 0 */
-  if (twemoji) {
-    twemojiInstance = twemoji;
+  if (emojione) {
+    emojiOneInstance = emojione;
   }
 }
 
@@ -1167,10 +1167,10 @@ module.exports = function emojiPlugin(md, options) {
     shortcuts: emojiesShortcuts,
     enabled: [],
     containsUnicodeEmoji: options.containsUnicodeEmoji ? options.containsUnicodeEmoji : function (text) {
-      return twemojiInstance.test(text);
+      return emojiOneInstance.regUnicode.test(text);
     },
     replaceUnicodeEmojis: options.replaceUnicodeEmojis ? options.replaceUnicodeEmojis : function (text, replacer) {
-      return twemojiInstance.replace(text, replacer);
+      return text.replace(emojiOneInstance.regUnicode, replacer);
     }
   };
 
@@ -1182,5 +1182,5 @@ module.exports = function emojiPlugin(md, options) {
     opts.containsUnicodeEmoji, opts.replaceUnicodeEmojis));
 };
 
-},{"./lib/data/full.json":1,"./lib/data/shortcuts":2,"./lib/normalize_opts":3,"./lib/render":4,"./lib/replace":5,"twemoji":undefined}]},{},[6])(6)
+},{"./lib/data/full.json":1,"./lib/data/shortcuts":2,"./lib/normalize_opts":3,"./lib/render":4,"./lib/replace":5,"emojione":undefined}]},{},[6])(6)
 });

@@ -1,52 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <title>Title</title>
 </head>
 <body>
 
-<script src="//twemoji.maxcdn.com/twemoji.min.js"></script>
+<script src="node_modules/emojione/lib/js/emojione.js"></script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/emojione/2.1.1/assets/css/emojione.min.css"/>
+
+<script src="https://cdn.jsdelivr.net/markdown-it/6.0.0/markdown-it.min.js"></script>
+<script src="dist/markdown-it-unicode-emoji-emoji-java.js"></script>
 
 <script>
-    function toCodePoint(unicodeSurrogates, sep) {
-        var
-                r = [],
-                c = 0,
-                p = 0,
-                i = 0;
-        while (i < unicodeSurrogates.length) {
-            c = unicodeSurrogates.charCodeAt(i++);
-            if (p) {
-                r.push((0x10000 + ((p - 0xD800) << 10) + (c - 0xDC00)).toString(16));
-                p = 0;
-            } else if (0xD800 <= c && c <= 0xDBFF) {
-                p = c;
-            } else {
-                r.push(c.toString(16));
-            }
-        }
-        return r.join(sep || '-');
-    }
+  const MSG = '😄  test ✌🏿 wasd 😄   lorem1 0  __1__';
 
-    function grabTheRightIcon(icon, variant) {
-        // if variant is present as \uFE0F
-        return toCodePoint(
-                variant === '\uFE0F' ?
-                    // the icon should not contain it
-                        icon.slice(0, -1) :
-                    // fix non standard OSX behavior
-                        (icon.length === 3 && icon.charAt(1) === '\uFE0F' ?
-                        icon.charAt(0) + icon.charAt(2) : icon)
-        );
-    }
+  emojione.imageType = 'svg';
+//  emojione.sprites = true;
+//  emojione.imagePathSVGSprites = './../assets/sprites/emojione.sprites.svg';
 
-    twemoji.replace('😄  test wasd 😄   lorem1 0  __1__', function(match, icon, variant, offset, src){
-        if (variant !== '\uFE0E') {
-            var _icon = grabTheRightIcon(icon, variant);
-            debugger;
-        }
-    });
+  var md = markdownit({
+    html: true,
+    linkify: true,
+    typographer: true
+  }).use(markdownitEmoji, {
+    shortcuts: {
+      "stuck_out_tongue": [":p", ":P", ":-p", ":-P"],
+      "grinning": [":)", ":-)", "^^"],
+      "wink": [";)", ";-)"],
+      "worried": [":(", ":-("],
+      "smile": [":D", ":-D"],
+      "open_mouth": [":o", ":-o", ":O"]
+    }
+  });
+
+  md.renderer.rules.emoji = function(token, idx) {
+    return emojione.unicodeToImage(token[idx].content);
+  };
+
+  var rendered = md.render(MSG);
+
+  console.log(rendered);
+  document.write(rendered);
 </script>
 
 </body>

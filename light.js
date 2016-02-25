@@ -6,14 +6,14 @@ var emojiesDefs = require('./lib/data/light.json'),
   emojiReplace = require('./lib/replace'),
   normalizeOpts = require('./lib/normalize_opts');
 
-var twemojiInstance;
-// allow not to have twemoji installed
+var emojiOneInstance;
+// allow not to have emojione installed
 try {
-  twemojiInstance = require('twemoji');
+  emojiOneInstance = require('emojione');
 } catch (e) {
   /* eslint no-undef: 0, block-scoped-var: 0 */
-  if (twemoji) {
-    twemojiInstance = twemoji;
+  if (emojione) {
+    emojiOneInstance = emojione;
   }
 }
 
@@ -23,11 +23,11 @@ module.exports = function emojiPlugin(md, options) {
     defs: emojiesDefs,
     shortcuts: emojiesShortcuts,
     enabled: [],
-    containsUnicodeEmoji: options.containsUnicodeEmoji ? options.containsUnicodeEmoji : function (str) {
-      return twemojiInstance.test(str);
+    containsUnicodeEmoji: options.containsUnicodeEmoji ? options.containsUnicodeEmoji : function (text) {
+      return emojiOneInstance.regUnicode.test(text);
     },
     replaceUnicodeEmojis: options.replaceUnicodeEmojis ? options.replaceUnicodeEmojis : function (text, replacer) {
-      return twemojiInstance.replace(text, replacer);
+      return text.replace(emojiOneInstance.regUnicode, replacer);
     }
   };
 
