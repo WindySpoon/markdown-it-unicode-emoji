@@ -13,11 +13,11 @@
 <script src="dist/markdown-it-unicode-emoji-emoji-java.js"></script>
 
 <script>
-  const MSG = '😄  test ✌🏿 wasd 😄   lorem1 0  __1__';
+  const MSG = 'asd :woman::skin-tone-3: asd';
 
   emojione.imageType = 'svg';
-//  emojione.sprites = true;
-//  emojione.imagePathSVGSprites = './../assets/sprites/emojione.sprites.svg';
+  //  emojione.sprites = true;
+  //  emojione.imagePathSVGSprites = './../assets/sprites/emojione.sprites.svg';
 
   var md = markdownit({
     html: true,
@@ -34,8 +34,26 @@
     }
   });
 
-  md.renderer.rules.emoji = function(token, idx) {
-    return emojione.unicodeToImage(token[idx].content);
+  FITZPATRICK_SCALE = [
+    '\u{1F3FB}',
+    '\u{1F3FC}',
+    '\u{1F3FD}',
+    '\u{1F3FE}',
+    '\u{1F3FF}'
+  ];
+  md.renderer.rules.emoji = function (token, idx) {
+    if (FITZPATRICK_SCALE.indexOf(token[idx].content) === -1) {
+      const nextToken = token[idx + 1];
+      let content = token[idx].content;
+
+      if (nextToken && FITZPATRICK_SCALE.indexOf(nextToken.content) !== -1) {
+        content += nextToken.content;
+      }
+
+      return emojione.unicodeToImage(content);
+    } else {
+      return '';
+    }
   };
 
   var rendered = md.render(MSG);

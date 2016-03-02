@@ -13,8 +13,28 @@ describe('replace', function () {
   emojione.imageType = 'svg';
   emojione.imagePathSVG = '/img/';
 
+  var FITZPATRICK_SCALE = [
+    '\u{1F3FB}',
+    '\u{1F3FC}',
+    '\u{1F3FD}',
+    '\u{1F3FE}',
+    '\u{1F3FF}'
+  ];
   md.renderer.rules.emoji = function (token, idx) {
-    return emojione.unicodeToImage(token[idx].content);
+    var value;
+    if (FITZPATRICK_SCALE.indexOf(token[idx].content) === -1) {
+      var nextToken = token[idx + 1],
+        content = token[idx].content;
+
+      if (nextToken && FITZPATRICK_SCALE.indexOf(nextToken.content) !== -1) {
+        content += nextToken.content;
+      }
+
+      value = emojione.unicodeToImage(content);
+    } else {
+      value = '';
+    }
+    return value;
   };
 
   generate(path.join(__dirname, 'fixtures/with-emojione'), { header: true }, md);

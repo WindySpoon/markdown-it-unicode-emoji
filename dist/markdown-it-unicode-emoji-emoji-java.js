@@ -41,6 +41,11 @@ module.exports = function emojiPlugin(md, options) {
 
 },{"./lib/data/emoji-java.json":2,"./lib/normalize_opts":3,"./lib/render":4,"./lib/replace":5,"emojione":undefined}],2:[function(require,module,exports){
 module.exports={
+  "skin-tone-1-2": "🏻",
+  "skin-tone-3": "🏼",
+  "skin-tone-4": "🏽",
+  "skin-tone-5": "🏾",
+  "skin-tone-6": "🏿",
   "100": "💯",
   "1234": "🔢",
   "smile": "😄",

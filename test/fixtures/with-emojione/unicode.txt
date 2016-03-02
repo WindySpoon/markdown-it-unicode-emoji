@@ -41,3 +41,11 @@ Tones
 .
 <p><img class="emojione" alt="😄" src="/img/1f604.svg?v=2.0.1"/>  test <img class="emojione" alt="✌🏼" src="/img/270c-1f3fc.svg?v=2.0.1"/> wasd <img class="emojione" alt="😄" src="/img/1f604.svg?v=2.0.1"/>   lorem1 0  <strong>1</strong></p>
 .
+
+
+Tone alias
+.
+asd :woman::skin-tone-3: asd
+.
+<p>asd <img class="emojione" alt="👩🏼" src="/img/1f469-1f3fc.svg?v=2.0.1"> asd</p>
+.
