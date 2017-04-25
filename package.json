@@ -1,6 +1,6 @@
 {
   "name": "markdown-it-unicode-emoji",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Unicode emoji plugin for markdown-it markdown parser.",
   "keywords": [
     "markdown-it-plugin",

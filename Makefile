@@ -53,5 +53,14 @@ browserify:
 		--preamble "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" \
 		> dist/markdown-it-unicode-emoji-emoji-java.min.js
 
+	# Browserify empty version
+	( printf "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" ; \
+		./node_modules/.bin/browserify ./empty.js --exclude emojione --ignore-missing -s markdownitEmoji \
+		) > dist/markdown-it-unicode-emoji-empty.js
+	# Minify emoji-java version
+	./node_modules/.bin/uglifyjs dist/markdown-it-unicode-emoji-empty.js --exclude emojione --ignore-missing -b beautify=false,ascii-only=true -c -m \
+		--preamble "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" \
+		> dist/markdown-it-unicode-emoji-empty.min.js
+
 .PHONY: lint test  coverage
 .SILENT: lint test

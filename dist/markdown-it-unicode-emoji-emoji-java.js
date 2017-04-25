@@ -12,7 +12,7 @@ try {
   emojiOneInstance = require('emojione');
 } catch (e) {
   /* eslint no-undef: 0, block-scoped-var: 0 */
-  if (emojione) {
+  if (typeof emojione !== 'undefined') {
     emojiOneInstance = emojione;
   }
 }

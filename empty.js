@@ -1,7 +1,6 @@
 'use strict';
 
-var emojiesDefs = require('./lib/data/full.json'),
-  emojiesShortcuts = require('./lib/data/shortcuts'),
+var emojiesDefs = require('./lib/data/empty.json'),
   emojiHtml = require('./lib/render'),
   emojiReplace = require('./lib/replace'),
   normalizeOpts = require('./lib/normalize_opts');
@@ -21,7 +20,7 @@ module.exports = function emojiPlugin(md, options) {
   options = options || {};
   var defaults = {
     defs: emojiesDefs,
-    shortcuts: emojiesShortcuts,
+    shortcuts: {},
     enabled: [],
     containsUnicodeEmoji: options.containsUnicodeEmoji ? options.containsUnicodeEmoji : function (text) {
       return emojiOneInstance.regUnicode.test(text);
